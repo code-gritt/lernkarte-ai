@@ -88,7 +88,7 @@ export default function RazorpayPayment({
 
       // Initialize Razorpay payment
       const options = {
-        key: 'rzp_live_BnWKD7IWJ15btz',
+        key: 'rzp_live_AZiZ00XxSHA7L2',
         amount: order.amount,
         currency: order.currency,
         name: 'AI Flashcard Wizard',
