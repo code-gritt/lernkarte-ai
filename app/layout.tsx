@@ -53,9 +53,7 @@ export const metadata: Metadata = {
     title: 'AI Flashcard Wizard',
     description:
       'Transform any text into intelligent flashcards with AI. Study smarter with our AI-powered flashcard generator.',
-    images: [
-      'https://i.postimg.cc/65jX93Ct/Screenshot-2025-07-02-224028.png',
-    ],
+    images: ['https://i.postimg.cc/65jX93Ct/Screenshot-2025-07-02-224028.png'],
   },
   icons: {
     icon: '/favicon.ico',
@@ -68,7 +66,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      publishableKey={'pk_test_Zm9uZC1wYXJyb3QtNDkuY2xlcmsuYWNjb3VudHMuZGV2JA'}
+    >
       <html lang='en' suppressHydrationWarning className={geist.variable}>
         <body className='font-sans antialiased' suppressHydrationWarning>
           <ThemeProvider

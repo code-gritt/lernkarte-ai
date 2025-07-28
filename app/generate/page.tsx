@@ -4,10 +4,11 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useUser } from '@clerk/nextjs'
-import firebaseOperations from '@/lib/firebaseOperations'
+
 import FirebaseConnectionStatus from '@/components/FirebaseConnectionStatus'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
+import databaseOperations from '@/server/actions/databaseOperations'
 
 interface Flashcard {
   front: string
@@ -56,11 +57,19 @@ export default function GeneratePage() {
 
       const result = await response.json()
       console.log('Received response:', result)
-      
-      if (result.flashcards && Array.isArray(result.flashcards) && result.flashcards.length > 0) {
+
+      if (
+        result.flashcards &&
+        Array.isArray(result.flashcards) &&
+        result.flashcards.length > 0
+      ) {
         setFlashcards(result.flashcards)
         setFlipped(new Array(result.flashcards.length).fill(false))
-        console.log('Successfully generated', result.flashcards.length, 'flashcards')
+        console.log(
+          'Successfully generated',
+          result.flashcards.length,
+          'flashcards'
+        )
       } else {
         throw new Error('No flashcards generated')
       }
@@ -97,25 +106,29 @@ export default function GeneratePage() {
         createdAt: new Date(),
       }
 
-      const docRef = await firebaseOperations.saveFlashcardSet(flashcardSet)
+      const docRef = await databaseOperations.saveFlashcardSet(flashcardSet)
       console.log('Flashcards saved with ID:', docRef.id)
       alert('Flashcards saved successfully!')
       setSetName('')
-      
+
       // Redirect to saved flashcards page after 1 second
       setTimeout(() => {
         router.push('/flashcards')
       }, 1000)
     } catch (error) {
       console.error('Error saving flashcards:', error)
-      
+
       let errorMessage = 'Failed to save flashcards. '
-      
+
       if (error instanceof Error) {
         if (error.message.includes('permission-denied')) {
           errorMessage += 'Permission denied. Please check your authentication.'
-        } else if (error.message.includes('network') || error.message.includes('offline')) {
-          errorMessage += 'Network error. Please check your internet connection and try again.'
+        } else if (
+          error.message.includes('network') ||
+          error.message.includes('offline')
+        ) {
+          errorMessage +=
+            'Network error. Please check your internet connection and try again.'
         } else if (error.message.includes('quota')) {
           errorMessage += 'Storage quota exceeded. Please contact support.'
         } else {
@@ -124,14 +137,14 @@ export default function GeneratePage() {
       } else {
         errorMessage += 'An unknown error occurred. Please try again.'
       }
-      
+
       alert(errorMessage)
     }
     setSaving(false)
   }
 
   const handleCardClick = (id: number) => {
-    setFlipped((prev) => {
+    setFlipped(prev => {
       const newFlipped = [...prev]
       newFlipped[id] = !newFlipped[id]
       return newFlipped
@@ -139,21 +152,23 @@ export default function GeneratePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
+    <div className='container mx-auto px-4 py-8'>
+      <div className='max-w-4xl mx-auto'>
         {/* Back Button */}
-        <Button 
-          variant="ghost" 
+        <Button
+          variant='ghost'
           onClick={() => router.push('/')}
-          className="mb-6 flex items-center gap-2"
+          className='mb-6 flex items-center gap-2'
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className='w-4 h-4' />
           Back to Home
         </Button>
-        
-        <h1 className="text-3xl font-bold text-center mb-8">Generate Flashcards</h1>
-        
-        <div className="mb-8">
+
+        <h1 className='text-3xl font-bold text-center mb-8'>
+          Generate Flashcards
+        </h1>
+
+        <div className='mb-8'>
           <Card>
             <CardHeader>
               <CardTitle>Enter Your Study Material</CardTitle>
@@ -161,15 +176,15 @@ export default function GeneratePage() {
             <CardContent>
               <textarea
                 value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Paste your notes, textbook content, or any study material here..."
-                className="w-full h-40 p-4 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={e => setText(e.target.value)}
+                placeholder='Paste your notes, textbook content, or any study material here...'
+                className='w-full h-40 p-4 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500'
               />
-              <div className="mt-4 flex justify-center">
-                <Button 
-                  onClick={handleSubmit} 
+              <div className='mt-4 flex justify-center'>
+                <Button
+                  onClick={handleSubmit}
                   disabled={loading}
-                  className="px-8 py-2"
+                  className='px-8 py-2'
                 >
                   {loading ? 'Generating...' : 'Generate Flashcards'}
                 </Button>
@@ -180,31 +195,31 @@ export default function GeneratePage() {
 
         {flashcards.length > 0 && (
           <div>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-semibold">Generated Flashcards</h2>
-              <div className="flex items-center space-x-4">
+            <div className='flex justify-between items-center mb-6'>
+              <h2 className='text-2xl font-semibold'>Generated Flashcards</h2>
+              <div className='flex items-center space-x-4'>
                 <input
-                  type="text"
+                  type='text'
                   value={setName}
-                  onChange={(e) => setSetName(e.target.value)}
-                  placeholder="Name your flashcard set..."
-                  className="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={e => setSetName(e.target.value)}
+                  placeholder='Name your flashcard set...'
+                  className='px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
                 />
-                <Button 
-                  onClick={handleSaveFlashcards} 
+                <Button
+                  onClick={handleSaveFlashcards}
                   disabled={saving || !user}
-                  variant="outline"
+                  variant='outline'
                 >
                   {saving ? 'Saving...' : 'Save Flashcards'}
                 </Button>
               </div>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
               {flashcards.map((flashcard, index) => (
                 <div
                   key={index}
-                  className="relative h-48 cursor-pointer"
+                  className='relative h-48 cursor-pointer'
                   onClick={() => handleCardClick(index)}
                   style={{ perspective: '1000px' }}
                 >
@@ -215,33 +230,35 @@ export default function GeneratePage() {
                     style={{ transformStyle: 'preserve-3d' }}
                   >
                     {/* Front of card */}
-                    <div 
-                      className="absolute inset-0 w-full h-full"
+                    <div
+                      className='absolute inset-0 w-full h-full'
                       style={{ backfaceVisibility: 'hidden' }}
                     >
-                      <Card className="w-full h-full">
-                        <CardContent className="flex items-center justify-center h-full p-4">
-                          <div className="text-center">
-                            <p className="text-sm text-gray-500 mb-2">Question</p>
-                            <p className="text-lg">{flashcard.front}</p>
+                      <Card className='w-full h-full'>
+                        <CardContent className='flex items-center justify-center h-full p-4'>
+                          <div className='text-center'>
+                            <p className='text-sm text-gray-500 mb-2'>
+                              Question
+                            </p>
+                            <p className='text-lg'>{flashcard.front}</p>
                           </div>
                         </CardContent>
                       </Card>
                     </div>
-                    
+
                     {/* Back of card */}
-                    <div 
-                      className="absolute inset-0 w-full h-full"
-                      style={{ 
+                    <div
+                      className='absolute inset-0 w-full h-full'
+                      style={{
                         backfaceVisibility: 'hidden',
-                        transform: 'rotateY(180deg)'
+                        transform: 'rotateY(180deg)',
                       }}
                     >
-                      <Card className="w-full h-full bg-blue-50 dark:bg-blue-900">
-                        <CardContent className="flex items-center justify-center h-full p-4">
-                          <div className="text-center">
-                            <p className="text-sm text-gray-500 mb-2">Answer</p>
-                            <p className="text-lg">{flashcard.back}</p>
+                      <Card className='w-full h-full bg-blue-50 dark:bg-blue-900'>
+                        <CardContent className='flex items-center justify-center h-full p-4'>
+                          <div className='text-center'>
+                            <p className='text-sm text-gray-500 mb-2'>Answer</p>
+                            <p className='text-lg'>{flashcard.back}</p>
                           </div>
                         </CardContent>
                       </Card>
@@ -253,13 +270,13 @@ export default function GeneratePage() {
           </div>
         )}
       </div>
-      
+
       <style jsx>{`
         .rotate-y-180 {
           transform: rotateY(180deg);
         }
       `}</style>
-      
+
       <FirebaseConnectionStatus />
     </div>
   )
