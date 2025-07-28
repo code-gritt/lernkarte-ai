@@ -37,11 +37,15 @@ declare global {
   }
 }
 
-export default function RazorpayPayment({ plan, amount, buttonText }: RazorpayPaymentProps) {
+export default function RazorpayPayment({
+  plan,
+  amount,
+  buttonText,
+}: RazorpayPaymentProps) {
   const [loading, setLoading] = useState(false)
 
   const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const script = document.createElement('script')
       script.src = 'https://checkout.razorpay.com/v1/checkout.js'
       script.onload = () => resolve(true)
@@ -52,17 +56,22 @@ export default function RazorpayPayment({ plan, amount, buttonText }: RazorpayPa
 
   const handlePayment = async () => {
     setLoading(true)
-    
+
     try {
       // Load Razorpay script
       const res = await loadRazorpayScript()
       if (!res) {
-        alert('Razorpay SDK failed to load. Please check your internet connection.')
+        alert(
+          'Razorpay SDK failed to load. Please check your internet connection.'
+        )
         return
       }
 
       // Create order
-      const endpoint = plan === 'basic' ? '/api/checkout-session-basic' : '/api/checkout-session-pro'
+      const endpoint =
+        plan === 'basic'
+          ? '/api/checkout-session-basic'
+          : '/api/checkout-session-pro'
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -79,7 +88,7 @@ export default function RazorpayPayment({ plan, amount, buttonText }: RazorpayPa
 
       // Initialize Razorpay payment
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
+        key: 'rzp_live_BnWKD7IWJ15btz',
         amount: order.amount,
         currency: order.currency,
         name: 'AI Flashcard Wizard',
@@ -104,7 +113,7 @@ export default function RazorpayPayment({ plan, amount, buttonText }: RazorpayPa
             })
 
             const verifyData = await verifyResponse.json()
-            
+
             if (verifyData.success) {
               alert('Payment successful! Welcome to AI Flashcard Wizard!')
               window.location.href = '/generate'
@@ -134,11 +143,7 @@ export default function RazorpayPayment({ plan, amount, buttonText }: RazorpayPa
   }
 
   return (
-    <Button 
-      onClick={handlePayment} 
-      disabled={loading}
-      className="w-full"
-    >
+    <Button onClick={handlePayment} disabled={loading} className='w-full'>
       {loading ? 'Processing...' : buttonText}
     </Button>
   )
