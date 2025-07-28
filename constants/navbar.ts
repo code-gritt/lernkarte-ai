@@ -29,7 +29,7 @@ export const NAVBAR_CONSTANT: Navbar = {
     width: 30,
     height: 30,
   },
-  companyName: 'AI Flashcard Wizard',
+  companyName: 'LernKarte AI',
   navigation: [
     { href: '/#features', text: 'Features' },
     { href: '/#pricing', text: 'Pricing' },

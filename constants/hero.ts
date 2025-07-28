@@ -18,11 +18,12 @@ interface HeroConfig {
 }
 
 export const HERO: HeroConfig = {
-  title: 'AI Flashcard Wizard - Generate Smart Study Cards',
-  description: 'Transform any text into interactive flashcards with AI. Study smarter, learn faster, and boost your memory retention.',
-  buttonText: "Start Creating Flashcards",
+  title: 'Master Any Subject with AI-Powered Flashcards',
+  description:
+    'Instantly convert textbooks, notes, or web content into smart flashcards using advanced AI. Maximize your study efficiency with personalized, interactive cards.',
+  buttonText: 'Start Creating Flashcards',
   videoConfig: {
-    videoSrc: 'https://www.youtube.com/embed/dQw4w9WgXcQ?si=gcHuOpFRg38gbu4J',
+    videoSrc: '/videos/ren.mp4',
     lightThumbnail: {
       src: 'https://startup-template-sage.vercel.app/hero-light.png',
       alt: 'AI Flashcard Generator',

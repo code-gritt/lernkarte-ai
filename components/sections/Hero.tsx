@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react'
-import HeroVideoDialog from '@/components/magicui/hero-video-dialog'
 import { RainbowButton } from '@/components/magicui/rainbow-button'
 import { ArrowRight } from 'lucide-react'
 import { motion } from 'motion/react'
@@ -38,7 +37,7 @@ const Hero = () => {
           whileInView={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
           transition={{ duration: 0.6, ease: 'easeInOut' }}
         >
-          <Link href="/generate">
+          <Link href='/generate'>
             <RainbowButton className='bg-white ' size='lg' variant='default'>
               {HERO.buttonText}
               <ArrowRight className='size-4' />
@@ -48,19 +47,13 @@ const Hero = () => {
       </div>
 
       <div className='relative mt-14'>
-        <HeroVideoDialog
-          className='block dark:hidden'
-          animationStyle='from-center'
-          videoSrc={HERO.videoConfig.videoSrc}
-          thumbnailSrc={HERO.videoConfig.lightThumbnail.src}
-          thumbnailAlt={HERO.videoConfig.lightThumbnail.alt}
-        />
-        <HeroVideoDialog
-          className='hidden dark:block'
-          animationStyle='from-center'
-          videoSrc={HERO.videoConfig.videoSrc}
-          thumbnailSrc={HERO.videoConfig.darkThumbnail.src}
-          thumbnailAlt={HERO.videoConfig.darkThumbnail.alt}
+        <video
+          src='/videos/ren.mp4'
+          className='size-full rounded-2xl'
+          controls
+          autoPlay
+          playsInline
+          loop
         />
       </div>
     </>

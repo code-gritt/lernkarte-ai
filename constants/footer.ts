@@ -42,7 +42,7 @@ export const FOOTER_CONSTANT: Footer = {
     width: 30,
     height: 30,
   },
-  companyName: 'AI Flashcard Wizard.',
+  companyName: 'LernKarte AI',
   description:
     'I am Ansh Gupta building amazing web applications. I love creating user-friendly interfaces.',
   socialLinks: {

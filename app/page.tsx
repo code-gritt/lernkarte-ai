@@ -8,13 +8,13 @@ import Pricing from '@/components/sections/Pricing'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'AI Flashcard Wizard - Smart Study Cards Generator',
+  title: 'LernKarte AI - Smart Flashcards Powered by AI',
   description:
-    'Transform any text into intelligent flashcards with AI. Study smarter with our AI-powered flashcard generator.',
+    'Turn your notes into powerful flashcards with AI. LernKarte AI helps you study faster and smarter with just one click.',
 }
 
 /**
- * Home component serves as the main entry point for the application.
+ * Home component serves as the main landing page for LernKarte AI.
  *
  * @returns {JSX.Element} The rendered Home component.
  */
@@ -26,40 +26,41 @@ export default function Home() {
       </section>
 
       <section className='mx-auto mt-20 max-w-5xl'>
-        <h2 className='section-heading'>Trusted By</h2>
+        <h2 className='section-heading'>Trusted by Learners Worldwide</h2>
         <Companies />
         <div id='features'></div>
       </section>
 
       <section className='mx-auto mt-20 max-w-7xl'>
-        <h2 className='section-heading'>Why Choose AI Flashcard Wizard?</h2>
+        <h2 className='section-heading'>Why Use LernKarte AI?</h2>
         <p className='section-subheading'>
-          Powerful features that make studying smarter and more effective.
+          Boost your learning with smart features that simplify study time.
         </p>
         <Features />
       </section>
 
       <section className='max-w-7xl mx-auto my-30'>
-        <h2 className='section-heading'>What Our Users Say</h2>
+        <h2 className='section-heading'>What Users Are Saying</h2>
         <p className='section-subheading'>
-          Real feedback from students and professionals using AI Flashcard Wizard.
+          Feedback from students, educators, and lifelong learners who use
+          LernKarte AI.
         </p>
         <MarqueeDemoVertical />
         <div id='pricing'></div>
       </section>
 
       <div className='max-w-5xl mx-auto -mt-5'>
-        <h2 className='section-heading'>Pricing</h2>
+        <h2 className='section-heading'>Plans & Pricing</h2>
         <p className='section-subheading'>
-          Choose a plan that fits your needs.
+          Find the plan that works best for your study routine.
         </p>
         <Pricing />
       </div>
 
       <section className='max-w-3xl mx-auto mt-30 relative'>
-        <h2 className='section-heading'>Frequently Asked Questions</h2>
+        <h2 className='section-heading'>FAQs</h2>
         <p className='section-subheading'>
-          Here are some common questions about this template.
+          Common questions about LernKarte AI and how it works.
         </p>
         <FAQ />
       </section>

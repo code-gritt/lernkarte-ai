@@ -4,7 +4,6 @@ import './globals.css'
 import Footer from '@/components/Footer'
 import { ThemeProvider } from '@/components/theme-provider'
 import Navbar from '@/components/Navbar'
-import NetworkStatus from '@/components/NetworkStatus'
 import { Analytics } from '@vercel/analytics/next'
 import { ClerkProvider } from '@clerk/nextjs'
 
@@ -15,9 +14,9 @@ const geist = Geist({
 })
 
 export const metadata: Metadata = {
-  title: 'AI Flashcard Wizard',
+  title: 'LernKarte AI',
   description:
-    'Transform any text into intelligent flashcards with AI. Study smarter with our AI-powered flashcard generator.',
+    'Generate intelligent flashcards instantly using AI. Learn faster and smarter with LernKarte AI.',
   keywords: [
     'AI Flashcards',
     'Study Tool',
@@ -33,16 +32,16 @@ export const metadata: Metadata = {
     'Educational SaaS',
   ],
   openGraph: {
-    title: 'AI Flashcard Wizard',
+    title: 'LernKarte AI',
     description:
-      'Transform any text into intelligent flashcards with AI. Study smarter with our AI-powered flashcard generator.',
-    siteName: 'AI Flashcard Wizard',
+      'Generate intelligent flashcards instantly using AI. Learn faster and smarter with LernKarte AI.',
+    siteName: 'LernKarte AI',
     images: [
       {
         url: 'https://i.postimg.cc/65jX93Ct/Screenshot-2025-07-02-224028.png',
         width: 1200,
         height: 630,
-        alt: 'AI Flashcard Wizard',
+        alt: 'LernKarte AI',
       },
     ],
     locale: 'en_US',
@@ -50,9 +49,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AI Flashcard Wizard',
+    title: 'LernKarte AI',
     description:
-      'Transform any text into intelligent flashcards with AI. Study smarter with our AI-powered flashcard generator.',
+      'Generate intelligent flashcards instantly using AI. Learn faster and smarter with LernKarte AI.',
     images: ['https://i.postimg.cc/65jX93Ct/Screenshot-2025-07-02-224028.png'],
   },
   icons: {
@@ -73,12 +72,12 @@ export default function RootLayout({
         <body className='font-sans antialiased' suppressHydrationWarning>
           <ThemeProvider
             attribute='class'
-            defaultTheme='system'
+            defaultTheme='light'
             enableSystem
             disableTransitionOnChange
           >
             <Navbar />
-            <NetworkStatus />
+
             <main className='min-h-screen container mx-auto px-4'>
               {children}
               <Analytics />

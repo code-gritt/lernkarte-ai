@@ -79,13 +79,13 @@ const Navbar = () => {
           <div className='flex items-center gap-4 '>
             {NAVBAR_CONSTANT.navigation.map((link, index) => {
               // Show "Saved Flashcards" and "Generate" only for signed-in users
-              if ((link.text === 'Saved Flashcards' || link.text === 'Generate')) {
+              if (
+                link.text === 'Saved Flashcards' ||
+                link.text === 'Generate'
+              ) {
                 return (
                   <SignedIn key={index}>
-                    <Link
-                      href={link.href}
-                      className='text-sm font-extralight'
-                    >
+                    <Link href={link.href} className='text-sm font-extralight'>
                       {link.text}
                     </Link>
                   </SignedIn>
@@ -103,22 +103,20 @@ const Navbar = () => {
               )
             })}
           </div>
-          
+
           {/* Authentication Section */}
           <SignedOut>
-            <Link href="/sign-in">
-              <Button variant="ghost" size="sm">
+            <Link href='/sign-in'>
+              <Button variant='ghost' size='sm'>
                 Sign In
               </Button>
             </Link>
-            <Link href="/sign-up">
-              <Button size="sm">
-                Sign Up
-              </Button>
+            <Link href='/sign-up'>
+              <Button size='sm'>Sign Up</Button>
             </Link>
           </SignedOut>
           <SignedIn>
-            <UserButton afterSignOutUrl="/" />
+            <UserButton afterSignOutUrl='/' />
           </SignedIn>
 
           {!mounted ? (

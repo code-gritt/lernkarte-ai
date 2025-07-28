@@ -126,13 +126,15 @@ export default function HeroVideoDialog({
               <motion.button className='cursor-pointer absolute -top-12 right-0 rounded-full bg-neutral-900/50 p-2 text-xl text-white backdrop-blur-md dark:bg-neutral-100/50 dark:text-black'>
                 <XIcon className='size-5' />
               </motion.button>
+
               <div className='relative isolate z-[1] size-full overflow-hidden rounded-2xl'>
-                <iframe
+                <video
                   src={videoSrc}
                   className='size-full rounded-2xl'
-                  allowFullScreen
-                  allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
-                ></iframe>
+                  controls
+                  autoPlay
+                  playsInline
+                />
               </div>
             </motion.div>
           </motion.div>

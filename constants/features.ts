@@ -6,27 +6,27 @@ interface Feature {
 
 export const FEATURES: Feature[] = [
   {
-    title: 'Easy Text Input',
+    title: 'Effortless Text Input',
     description:
-      'Simply paste your study material or notes and let our AI analyze and create perfect flashcards instantly.',
+      'Just paste your notes, articles, or textbook content. Our AI takes care of the rest—no formatting needed.',
     src: '/images/features/feature-1.jpeg',
   },
   {
-    title: 'Smart AI Generation',
+    title: 'AI-Powered Flashcard Generation',
     description:
-      'Powered by Google Gemini AI to extract key concepts and create intelligent question-answer pairs.',
+      'Built on Google Gemini, our AI intelligently detects key ideas and auto-generates question-answer pairs.',
     src: '/images/features/feature-2.jpg',
   },
   {
-    title: 'Interactive Study Mode',
+    title: 'Engaging Study Experience',
     description:
-      'Flip through cards with smooth animations and track your learning progress effectively.',
+      'Swipe through beautifully animated cards and reinforce learning with progress tracking and smart repetition.',
     src: '/images/features/feature-3.jpg',
   },
   {
-    title: 'Accessible Anywhere',
+    title: 'Cross-Device Sync',
     description:
-      'Study on any device with cloud sync. Your flashcards are always available when you need them.',
+      'Access your flashcards anytime, anywhere—from mobile, tablet, or desktop. Always synced and ready to study.',
     src: '/images/features/feature-4.jpeg',
   },
 ]

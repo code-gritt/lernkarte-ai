@@ -11,12 +11,13 @@ interface CTA {
 }
 
 export const CTA_CONSTANT: CTA = {
-  title: 'Ready to Study Smarter?',
-  description: 'Join thousands of students who are already boosting their grades with AI-powered flashcards.',
-  buttonText: 'Start Creating Flashcards',
+  title: 'Boost Your Learning with AI',
+  description:
+    'Join thousands of students using AI-generated flashcards to study more efficiently and retain more information.',
+  buttonText: 'Create Your First Flashcards',
   image: {
     src: '/images/cta/duck.png',
-    alt: 'Study Smart',
+    alt: 'Smart Studying with AI',
     width: 500,
     height: 500,
   },
