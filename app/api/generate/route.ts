@@ -1,17 +1,11 @@
 import { NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { useGenerationStore } from '@/store/generationStore'
 
-// In-memory rate limiting and generation tracking
+// In-memory rate limiting
 const rateLimitMap = new Map<string, number[]>()
 const RATE_LIMIT_WINDOW = 60 * 1000
 const MAX_REQUESTS_PER_WINDOW = 2
-const FREE_GENERATION_LIMIT = 3
-const PAID_GENERATION_LIMIT = 1000
-
-// In-memory user data (replace with database in production)
-const userData: {
-  [userId: string]: { paidTier: boolean; remainingFlashcards: number }
-} = {}
 
 function isRateLimited(clientIP: string): boolean {
   const now = Date.now()
@@ -55,7 +49,7 @@ You should return in the following JSON format:
 }
 `
 
-async function generateFlashcards(prompt: string, userId: string) {
+async function generateFlashcards(prompt: string) {
   try {
     const apiKey = 'AIzaSyCrFOJs7a9eRY4kc2U6efgERkKpLRH_pqs'
     if (!apiKey) {
@@ -115,29 +109,7 @@ async function generateFlashcards(prompt: string, userId: string) {
 
     console.log('Generated', validFlashcards.length, 'valid flashcards')
 
-    // Update remaining flashcards
-    const userInfo = userData[userId] || {
-      paidTier: false,
-      remainingFlashcards: FREE_GENERATION_LIMIT,
-    }
-    if (userInfo.paidTier) {
-      userInfo.remainingFlashcards = Math.max(
-        0,
-        userInfo.remainingFlashcards - validFlashcards.length
-      )
-    } else {
-      userInfo.remainingFlashcards = Math.max(
-        0,
-        userInfo.remainingFlashcards - 1
-      ) // Free tier counts per attempt
-    }
-    userData[userId] = userInfo
-
-    return {
-      flashcards: validFlashcards,
-      remainingAttempts: userInfo.remainingFlashcards,
-      paidTier: userInfo.paidTier,
-    }
+    return validFlashcards
   } catch (error) {
     console.error('Error generating flashcards:', error)
 
@@ -149,27 +121,22 @@ async function generateFlashcards(prompt: string, userId: string) {
       throw new Error('Too many requests. Please wait a moment and try again.')
     }
 
-    return {
-      flashcards: [
-        {
-          front: 'Sample Question about ' + prompt.substring(0, 50) + '...',
-          back: 'This is a fallback flashcard. The AI service is temporarily unavailable. Please try again later.',
-        },
-        {
-          front: 'What should you do if flashcard generation fails?',
-          back: 'Wait a few minutes and try again. The service may be experiencing high demand or rate limits.',
-        },
-      ],
-      remainingAttempts:
-        userData[userId]?.remainingFlashcards || FREE_GENERATION_LIMIT,
-      paidTier: userData[userId]?.paidTier || false,
-    }
+    return [
+      {
+        front: 'Sample Question about ' + prompt.substring(0, 50) + '...',
+        back: 'This is a fallback flashcard. The AI service is temporarily unavailable. Please try again later.',
+      },
+      {
+        front: 'What should you do if flashcard generation fails?',
+        back: 'Wait a few minutes and try again. The service may be experiencing high demand or rate limits.',
+      },
+    ]
   }
 }
 
 export async function POST(req: Request) {
   try {
-    const clientIP = 'general' // Replace with actual IP or user ID in production
+    const clientIP = 'general' // Replace with actual IP in production
     if (isRateLimited(clientIP)) {
       return NextResponse.json(
         {
@@ -186,38 +153,39 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Text is required' }, { status: 400 })
     }
 
-    // Simulate user ID from Clerk (replace with actual user.id in production)
-    const userId = 'user123' // Placeholder
-
-    const userInfo = userData[userId] || {
-      paidTier: false,
-      remainingFlashcards: FREE_GENERATION_LIMIT,
+    // Extract userId from headers
+    const userId = req.headers.get('X-User-Id')
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'User ID is required' },
+        { status: 401 }
+      )
     }
-    if (userInfo.remainingFlashcards <= 0) {
+
+    // Sync with Zustand store
+    const { remainingFlashcards, paidTier, updateRemainingFlashcards } =
+      useGenerationStore.getState()
+    if (remainingFlashcards <= 0) {
       return NextResponse.json(
         {
-          error: `Generation limit reached. ${userInfo.paidTier ? 'You have used all 1,000 flashcards. Please renew your subscription.' : 'Please upgrade to generate more flashcards.'}`,
-          upgradeRequired: !userInfo.paidTier,
+          error: `Generation limit reached. ${paidTier ? 'You have used all 1,000 flashcards. Please renew your subscription.' : 'Please upgrade to generate more flashcards.'}`,
+          upgradeRequired: !paidTier,
         },
         { status: 402 }
       )
     }
 
-    const { flashcards, remainingAttempts, paidTier } =
-      await generateFlashcards(text, userId)
+    const flashcards = await generateFlashcards(text)
 
-    if (!flashcards || !flashcards.length) {
-      return NextResponse.json(
-        { error: 'Failed to generate flashcards' },
-        { status: 500 }
-      )
-    }
+    const deduction = paidTier ? flashcards.length : 1 // Deduct per flashcard for paid, per attempt for free
+    const newRemaining = Math.max(0, remainingFlashcards - deduction)
+    updateRemainingFlashcards(newRemaining)
 
     return NextResponse.json({
       flashcards,
-      remainingAttempts,
+      remainingAttempts: newRemaining,
       paidTier,
-      message: `Flashcards generated! ${remainingAttempts} ${paidTier ? 'flashcards' : 'attempts'} remaining.`,
+      message: `Flashcards generated! ${newRemaining} ${paidTier ? 'flashcards' : 'attempts'} remaining.`,
     })
   } catch (error) {
     console.error('API Error:', error)

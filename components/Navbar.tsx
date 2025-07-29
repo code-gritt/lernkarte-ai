@@ -62,18 +62,20 @@ const Navbar = () => {
   return (
     <nav className='border max-w-3xl max-md:mx-4 mx-auto py-2 px-4 mb-16 rounded-full sticky top-5 z-10 backdrop-blur-xl'>
       <div className='flex items-center'>
-        <div className='flex items-center'>
-          <Image
-            src={NAVBAR_CONSTANT.logo.src}
-            alt={NAVBAR_CONSTANT.logo.alt}
-            width={NAVBAR_CONSTANT.logo.width}
-            height={NAVBAR_CONSTANT.logo.height}
-            className='dark:invert'
-          />
-          <p className='inline-block ml-2 text-lg font-medium tracking-tight max-lg:hidden'>
-            {NAVBAR_CONSTANT.companyName}
-          </p>
-        </div>
+        <Link href='/'>
+          <div className='flex items-center'>
+            <Image
+              src={NAVBAR_CONSTANT.logo.src}
+              alt={NAVBAR_CONSTANT.logo.alt}
+              width={NAVBAR_CONSTANT.logo.width}
+              height={NAVBAR_CONSTANT.logo.height}
+              className='dark:invert'
+            />
+            <p className='inline-block ml-2 text-lg font-medium tracking-tight max-lg:hidden'>
+              {NAVBAR_CONSTANT.companyName}
+            </p>
+          </div>
+        </Link>
 
         <div className='flex items-center gap-2 ml-auto'>
           <div className='flex items-center gap-4 '>
