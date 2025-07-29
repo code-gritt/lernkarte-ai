@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useUser } from '@clerk/nextjs'
-
+import { toast } from 'sonner'
 import FirebaseConnectionStatus from '@/components/FirebaseConnectionStatus'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
@@ -52,30 +52,53 @@ export default function GeneratePage() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to generate flashcards')
-      }
-
-      const result = await response.json()
-      console.log('Received response:', result)
-
-      if (
-        result.flashcards &&
-        Array.isArray(result.flashcards) &&
-        result.flashcards.length > 0
-      ) {
-        setFlashcards(result.flashcards)
-        setFlipped(new Array(result.flashcards.length).fill(false))
-        console.log(
-          'Successfully generated',
-          result.flashcards.length,
-          'flashcards'
-        )
+        if (errorData.upgradeRequired) {
+          toast.error('Upgrade Required', {
+            description:
+              'Free generation limit reached (3 attempts). Upgrade to a $10/month plan for 1,000 flashcards!',
+            action: {
+              label: 'Upgrade Now',
+              onClick: () => router.push('/#pricing'),
+            },
+          })
+        } else if (errorData.error) {
+          toast.error('Error', {
+            description: errorData.error,
+          })
+        }
       } else {
-        throw new Error('No flashcards generated')
+        const result = await response.json()
+        console.log('Received response:', result)
+
+        if (
+          result.flashcards &&
+          Array.isArray(result.flashcards) &&
+          result.flashcards.length > 0
+        ) {
+          setFlashcards(result.flashcards)
+          setFlipped(new Array(result.flashcards.length).fill(false))
+          toast.success(
+            result.message || 'Flashcards generated successfully!',
+            {
+              description: result.paidTier
+                ? `${result.remainingAttempts} flashcards remaining.`
+                : `${result.remainingAttempts} attempts remaining.`,
+            }
+          )
+          console.log(
+            'Successfully generated',
+            result.flashcards.length,
+            'flashcards'
+          )
+        } else {
+          throw new Error('No flashcards generated')
+        }
       }
     } catch (error) {
       console.error('Error generating flashcards:', error)
-      alert(`An error occurred while generating flashcards: ${error}`)
+      toast.error('Error', {
+        description: `An error occurred while generating flashcards: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      })
     }
     setLoading(false)
   }
@@ -108,10 +131,11 @@ export default function GeneratePage() {
 
       const docRef = await databaseOperations.saveFlashcardSet(flashcardSet)
       console.log('Flashcards saved with ID:', docRef.id)
-      alert('Flashcards saved successfully!')
+      toast.success('Success', {
+        description: 'Flashcards saved successfully!',
+      })
       setSetName('')
 
-      // Redirect to saved flashcards page after 1 second
       setTimeout(() => {
         router.push('/flashcards')
       }, 1000)
@@ -119,7 +143,6 @@ export default function GeneratePage() {
       console.error('Error saving flashcards:', error)
 
       let errorMessage = 'Failed to save flashcards. '
-
       if (error instanceof Error) {
         if (error.message.includes('permission-denied')) {
           errorMessage += 'Permission denied. Please check your authentication.'
@@ -138,7 +161,9 @@ export default function GeneratePage() {
         errorMessage += 'An unknown error occurred. Please try again.'
       }
 
-      alert(errorMessage)
+      toast.error('Error', {
+        description: errorMessage,
+      })
     }
     setSaving(false)
   }
@@ -154,7 +179,6 @@ export default function GeneratePage() {
   return (
     <div className='container mx-auto px-4 py-8'>
       <div className='max-w-4xl mx-auto'>
-        {/* Back Button */}
         <Button
           variant='ghost'
           onClick={() => router.push('/')}
@@ -229,7 +253,6 @@ export default function GeneratePage() {
                     }`}
                     style={{ transformStyle: 'preserve-3d' }}
                   >
-                    {/* Front of card */}
                     <div
                       className='absolute inset-0 w-full h-full'
                       style={{ backfaceVisibility: 'hidden' }}
@@ -246,7 +269,6 @@ export default function GeneratePage() {
                       </Card>
                     </div>
 
-                    {/* Back of card */}
                     <div
                       className='absolute inset-0 w-full h-full'
                       style={{

@@ -1,16 +1,22 @@
 import { NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
-// Simple rate limiting
-const rateLimitMap = new Map()
-const RATE_LIMIT_WINDOW = 60 * 1000 // 1 minute
-const MAX_REQUESTS_PER_WINDOW = 2 // Limit to 2 requests per minute
+// In-memory rate limiting and generation tracking
+const rateLimitMap = new Map<string, number[]>()
+const RATE_LIMIT_WINDOW = 60 * 1000
+const MAX_REQUESTS_PER_WINDOW = 2
+const FREE_GENERATION_LIMIT = 3
+const PAID_GENERATION_LIMIT = 1000
+
+// In-memory user data (replace with database in production)
+const userData: {
+  [userId: string]: { paidTier: boolean; remainingFlashcards: number }
+} = {}
 
 function isRateLimited(clientIP: string): boolean {
   const now = Date.now()
   const clientRequests = rateLimitMap.get(clientIP) || []
 
-  // Remove old requests outside the window
   const recentRequests = clientRequests.filter(
     (timestamp: number) => now - timestamp < RATE_LIMIT_WINDOW
   )
@@ -19,7 +25,6 @@ function isRateLimited(clientIP: string): boolean {
     return true
   }
 
-  // Add current request
   recentRequests.push(now)
   rateLimitMap.set(clientIP, recentRequests)
 
@@ -50,7 +55,7 @@ You should return in the following JSON format:
 }
 `
 
-async function generateFlashcards(prompt: string) {
+async function generateFlashcards(prompt: string, userId: string) {
   try {
     const apiKey = 'AIzaSyCrFOJs7a9eRY4kc2U6efgERkKpLRH_pqs'
     if (!apiKey) {
@@ -72,21 +77,18 @@ async function generateFlashcards(prompt: string) {
 
     const fullPrompt = `${systemPrompt}\n\nNow create flashcards for this content:\n\n${prompt}`
 
-    // Add a small delay to help with rate limiting
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000)) // Small delay for rate limiting
 
     const result = await model.generateContent(fullPrompt)
     const text = await result.response.text()
 
     console.log('Raw API Response:', text)
 
-    // Clean the response text by removing markdown formatting
     let cleanedText = text
       .replace(/```json\s*/g, '')
       .replace(/```\s*/g, '')
       .trim()
 
-    // If the response doesn't start with {, try to find the JSON part
     const jsonStart = cleanedText.indexOf('{')
     const jsonEnd = cleanedText.lastIndexOf('}') + 1
 
@@ -98,13 +100,11 @@ async function generateFlashcards(prompt: string) {
 
     const flashcards = JSON.parse(cleanedText)
 
-    // Validate the response structure
     if (!flashcards.flashcards || !Array.isArray(flashcards.flashcards)) {
       console.error('Invalid response format from AI:', flashcards)
       throw new Error('AI returned invalid response format')
     }
 
-    // Ensure each flashcard has front and back properties
     const validFlashcards = flashcards.flashcards.filter(
       (card: any) =>
         card.front &&
@@ -115,11 +115,32 @@ async function generateFlashcards(prompt: string) {
 
     console.log('Generated', validFlashcards.length, 'valid flashcards')
 
-    return { flashcards: validFlashcards }
+    // Update remaining flashcards
+    const userInfo = userData[userId] || {
+      paidTier: false,
+      remainingFlashcards: FREE_GENERATION_LIMIT,
+    }
+    if (userInfo.paidTier) {
+      userInfo.remainingFlashcards = Math.max(
+        0,
+        userInfo.remainingFlashcards - validFlashcards.length
+      )
+    } else {
+      userInfo.remainingFlashcards = Math.max(
+        0,
+        userInfo.remainingFlashcards - 1
+      ) // Free tier counts per attempt
+    }
+    userData[userId] = userInfo
+
+    return {
+      flashcards: validFlashcards,
+      remainingAttempts: userInfo.remainingFlashcards,
+      paidTier: userInfo.paidTier,
+    }
   } catch (error) {
     console.error('Error generating flashcards:', error)
 
-    // Check if it's a rate limit error
     if (error instanceof Error && error.message.includes('quota exceeded')) {
       throw new Error('API quota exceeded. Please try again in a few minutes.')
     }
@@ -128,7 +149,6 @@ async function generateFlashcards(prompt: string) {
       throw new Error('Too many requests. Please wait a moment and try again.')
     }
 
-    // Return fallback flashcards for other errors
     return {
       flashcards: [
         {
@@ -140,15 +160,17 @@ async function generateFlashcards(prompt: string) {
           back: 'Wait a few minutes and try again. The service may be experiencing high demand or rate limits.',
         },
       ],
+      remainingAttempts:
+        userData[userId]?.remainingFlashcards || FREE_GENERATION_LIMIT,
+      paidTier: userData[userId]?.paidTier || false,
     }
   }
 }
 
 export async function POST(req: Request) {
   try {
-    // Simple rate limiting based on a general key since we can't easily get IP in this context
-    const clientKey = 'general'
-    if (isRateLimited(clientKey)) {
+    const clientIP = 'general' // Replace with actual IP or user ID in production
+    if (isRateLimited(clientIP)) {
       return NextResponse.json(
         {
           error:
@@ -164,20 +186,39 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Text is required' }, { status: 400 })
     }
 
-    const flashcards = await generateFlashcards(text)
+    // Simulate user ID from Clerk (replace with actual user.id in production)
+    const userId = 'user123' // Placeholder
 
-    if (
-      !flashcards ||
-      !flashcards.flashcards ||
-      flashcards.flashcards.length === 0
-    ) {
+    const userInfo = userData[userId] || {
+      paidTier: false,
+      remainingFlashcards: FREE_GENERATION_LIMIT,
+    }
+    if (userInfo.remainingFlashcards <= 0) {
+      return NextResponse.json(
+        {
+          error: `Generation limit reached. ${userInfo.paidTier ? 'You have used all 1,000 flashcards. Please renew your subscription.' : 'Please upgrade to generate more flashcards.'}`,
+          upgradeRequired: !userInfo.paidTier,
+        },
+        { status: 402 }
+      )
+    }
+
+    const { flashcards, remainingAttempts, paidTier } =
+      await generateFlashcards(text, userId)
+
+    if (!flashcards || !flashcards.length) {
       return NextResponse.json(
         { error: 'Failed to generate flashcards' },
         { status: 500 }
       )
     }
 
-    return NextResponse.json({ flashcards: flashcards.flashcards })
+    return NextResponse.json({
+      flashcards,
+      remainingAttempts,
+      paidTier,
+      message: `Flashcards generated! ${remainingAttempts} ${paidTier ? 'flashcards' : 'attempts'} remaining.`,
+    })
   } catch (error) {
     console.error('API Error:', error)
     return NextResponse.json(
