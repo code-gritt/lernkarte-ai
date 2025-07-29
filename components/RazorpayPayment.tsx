@@ -88,7 +88,7 @@ export default function RazorpayPayment({
         key: 'rzp_live_AZiZ00XxSHA7L2',
         amount: order.amount,
         currency: 'USD', // Changed to USD
-        name: 'AI Flashcard Wizard',
+        name: 'LernKarte AI',
         description: `${plan === 'basic' ? 'Basic' : 'Pro'} Plan Subscription`,
         order_id: order.id,
         theme: {
@@ -111,7 +111,7 @@ export default function RazorpayPayment({
             const verifyData = await verifyResponse.json()
 
             if (verifyData.success) {
-              alert('Payment successful! Welcome to AI Flashcard Wizard!')
+              alert('Payment successful! Welcome to LernKarte AI!')
               window.location.href = '/generate'
             } else {
               alert('Payment verification failed. Please contact support.')

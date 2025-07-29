@@ -15,7 +15,7 @@ export const TESTIMONIALS_CONSTANT: Testimonials = {
     {
       name: 'Saheel Prasad Sah',
       username: '@saheelprasad',
-      body: 'AI Flashcard Wizard transformed my study routine! Generated 50 flashcards from my textbook in minutes. My grades improved dramatically.',
+      body: 'LernKarte AI transformed my study routine! Generated 50 flashcards from my textbook in minutes. My grades improved dramatically.',
       img: '/images/testimonial/testimonial-1.jpg',
       social: 'https://www.linkedin.com/in/saheel-prasad-sah-b091b0219/',
     },
