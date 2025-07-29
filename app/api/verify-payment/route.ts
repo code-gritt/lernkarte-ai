@@ -21,8 +21,6 @@ export async function POST(req: Request) {
     const isAuthentic = expectedSignature === razorpay_signature
 
     if (isAuthentic) {
-      // Payment is successful
-      // You can update your database here
       return NextResponse.json({
         success: true,
         message: 'Payment verified successfully',

@@ -11,8 +11,8 @@ export async function POST(req: Request) {
     const { amount } = await req.json()
 
     const options = {
-      amount: amount || 50000, // Amount in paise, default to ₹500 monthly
-      currency: 'INR',
+      amount: amount || 4900, // Amount in cents, default to $49
+      currency: 'USD', // Changed to USD
       receipt: `receipt_${Date.now()}`,
       payment_capture: 1,
     }

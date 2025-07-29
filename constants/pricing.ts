@@ -16,8 +16,8 @@ export const PRICING_PLANS: PricingPlan[] = [
   {
     name: 'Basic',
     description: 'Perfect for students and casual learners.',
-    monthlyPrice: '₹100/mo',
-    yearlyPrice: '₹1000/yr',
+    monthlyPrice: '$10/mo',
+    yearlyPrice: '$100/yr',
     features: [
       { text: '1,000 flashcards', included: true },
       { text: 'AI-powered generation', included: true },
@@ -31,8 +31,8 @@ export const PRICING_PLANS: PricingPlan[] = [
   {
     name: 'Pro',
     description: 'Ideal for serious students and professionals.',
-    monthlyPrice: '₹500/mo',
-    yearlyPrice: '₹5000/yr',
+    monthlyPrice: '$49/mo',
+    yearlyPrice: '$490/yr',
     features: [
       { text: '100,000 flashcards', included: true },
       { text: 'AI-powered generation', included: true },

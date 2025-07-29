@@ -6,18 +6,11 @@ import { Label } from '@/components/ui/label'
 import { Check } from 'lucide-react'
 import { useState } from 'react'
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card'
-import { motion } from 'motion/react'
+import { motion } from 'framer-motion' // Updated import for framer-motion
 import { BorderBeam } from '../magicui/border-beam'
 import { PRICING_DISCOUNT, PRICING_PLANS } from '@/constants/pricing'
 import RazorpayPayment from '@/components/RazorpayPayment'
 
-/**
- * Feature list component to avoid repetition
- *
- * @param {Object} props - The component props.
- * @param {Array} props.features - An array of feature objects, each containing text and included status.
- * @returns {JSX.Element} The rendered feature list.
- */
 const FeatureList = ({
   features,
 }: {
@@ -26,14 +19,13 @@ const FeatureList = ({
   <ul className='text-sm text-muted-foreground mt-4'>
     {features.map((feature, index) => (
       <li key={index}>
-        {' '}
         <Check
           className={`inline-block mr-1 size-4 ${feature.included ? 'text-green-600' : 'text-muted-foreground'}`}
-        />{' '}
+        />
         <span
           className={
             feature.included
-              ? 'text-primary tracking-wide dark:text-white/90 '
+              ? 'text-primary tracking-wide dark:text-white/90'
               : 'text-muted-foreground'
           }
         >
@@ -44,30 +36,29 @@ const FeatureList = ({
   </ul>
 )
 
-/**
- * Pricing component displays the pricing plans for a service.
- *
- * @returns {JSX.Element} The rendered Pricing component.
- */
 const Pricing = () => {
   const [isMonthly, setIsMonthly] = useState(true)
-  const basicPlan = PRICING_PLANS[0]
-  const proPlan = PRICING_PLANS[1]
+  const basicPlan = {
+    ...PRICING_PLANS[0],
+    monthlyPrice: '$10 /mo',
+    yearlyPrice: '$100 /yr', // 10% discount ($8.33/mo equivalent)
+  }
+  const proPlan = {
+    ...PRICING_PLANS[1],
+    monthlyPrice: '$49 /mo',
+    yearlyPrice: '$490 /yr', // 10% discount ($40.83/mo equivalent)
+  }
 
-  const price = isMonthly ? basicPlan.monthlyPrice : basicPlan.yearlyPrice
-  const pricePro = isMonthly ? proPlan.monthlyPrice : proPlan.yearlyPrice
-
-  // Calculate amounts in paise (1 INR = 100 paise)
-  const basicAmount = isMonthly ? 10000 : 100000 // ₹100 monthly, ₹1000 yearly
-  const proAmount = isMonthly ? 50000 : 500000 // ₹500 monthly, ₹5000 yearly
+  // Amounts in cents
+  const basicAmount = isMonthly ? 1000 : 10000 // $10 monthly, $100 yearly
+  const proAmount = isMonthly ? 4900 : 49000 // $49 monthly, $490 yearly
 
   return (
     <>
       <div className='flex items-center justify-center mb-8'>
         <div className='flex items-center justify-center gap-4 ml-20'>
           <Label htmlFor='pricing-toggle' className='font-light text-sm'>
-            {' '}
-            Monthly{' '}
+            Monthly
           </Label>
           <Switch
             id='pricing-toggle'
@@ -76,10 +67,9 @@ const Pricing = () => {
             className='cursor-pointer'
           />
           <Label htmlFor='pricing-toggle' className='font-light text-sm'>
-            {' '}
-            Yearly{' '}
+            Yearly
           </Label>
-          <Label className='text-sm font-light bg-cyan-50  dark:text-white text-muted-foreground px-2 py-1 rounded-2xl dark:bg-teal-600/80'>
+          <Label className='text-sm font-light bg-cyan-50 dark:text-white text-muted-foreground px-2 py-1 rounded-2xl dark:bg-teal-600/80'>
             {PRICING_DISCOUNT}
           </Label>
         </div>
@@ -91,21 +81,20 @@ const Pricing = () => {
             <p className='text-sm text-muted-foreground'>
               {basicPlan.description}
             </p>
-            <p className='text-4xl mt-4 text-center border-b  border-t py-4'>
-              {price}
+            <p className='text-4xl mt-4 text-center border-b border-t py-4'>
+              {isMonthly ? basicPlan.monthlyPrice : basicPlan.yearlyPrice}
             </p>
           </CardHeader>
           <CardContent>
             <FeatureList features={basicPlan.features} />
           </CardContent>
           <CardFooter className='flex items-center justify-between mt-8 mb-4'>
-            <RazorpayPayment 
-              plan="basic"
+            <RazorpayPayment
+              plan='basic'
               amount={basicAmount}
               buttonText={basicPlan.buttonText}
             />
           </CardFooter>
-
           <motion.img
             src='/images/pricing/dollar.webp'
             alt='Dollar Icon'
@@ -128,8 +117,8 @@ const Pricing = () => {
               <p className='text-sm text-muted-foreground'>
                 {proPlan.description}
               </p>
-              <p className='text-4xl mt-4 text-center border-b  border-t py-4'>
-                {pricePro}
+              <p className='text-4xl mt-4 text-center border-b border-t py-4'>
+                {isMonthly ? proPlan.monthlyPrice : proPlan.yearlyPrice}
               </p>
             </CardHeader>
             <CardContent>
@@ -137,8 +126,8 @@ const Pricing = () => {
             </CardContent>
             <CardFooter className='flex items-center justify-between mt-8 mb-4'>
               <div className='w-full'>
-                <RazorpayPayment 
-                  plan="pro"
+                <RazorpayPayment
+                  plan='pro'
                   amount={proAmount}
                   buttonText={proPlan.buttonText}
                 />

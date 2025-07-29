@@ -58,7 +58,6 @@ export default function RazorpayPayment({
     setLoading(true)
 
     try {
-      // Load Razorpay script
       const res = await loadRazorpayScript()
       if (!res) {
         alert(
@@ -67,7 +66,6 @@ export default function RazorpayPayment({
         return
       }
 
-      // Create order
       const endpoint =
         plan === 'basic'
           ? '/api/checkout-session-basic'
@@ -86,19 +84,17 @@ export default function RazorpayPayment({
 
       const order = await response.json()
 
-      // Initialize Razorpay payment
       const options = {
         key: 'rzp_live_AZiZ00XxSHA7L2',
         amount: order.amount,
-        currency: order.currency,
+        currency: 'USD', // Changed to USD
         name: 'AI Flashcard Wizard',
         description: `${plan === 'basic' ? 'Basic' : 'Pro'} Plan Subscription`,
         order_id: order.id,
         theme: {
-          color: '#F87317', // Orange theme
+          color: '#F87317',
         },
         handler: async function (response: RazorpayResponse) {
-          // Verify payment
           try {
             const verifyResponse = await fetch('/api/verify-payment', {
               method: 'POST',
@@ -128,7 +124,7 @@ export default function RazorpayPayment({
         prefill: {
           name: 'Your Name',
           email: 'your.email@example.com',
-          contact: '9999999999',
+          contact: '9999999999', // Update to a US-format number or make dynamic
         },
       }
 
