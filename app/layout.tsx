@@ -69,6 +69,18 @@ export default function RootLayout({
       publishableKey={'pk_test_Zm9uZC1wYXJyb3QtNDkuY2xlcmsuYWNjb3VudHMuZGV2JA'}
     >
       <html lang='en' suppressHydrationWarning className={geist.variable}>
+        <head>
+          <link rel='icon' href='/favicon.ico' sizes='any' />
+          <meta
+            name='google-site-verification'
+            content='wdlByCZtt15adBudf4vuQ__pWccGvhmx4kxx4n_1pLY'
+          />
+          <meta
+            name='google-adsense-account'
+            content='ca-pub-8291461267710066'
+          ></meta>
+        </head>
+
         <body className='font-sans antialiased' suppressHydrationWarning>
           <ThemeProvider
             attribute='class'
